@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ disease_config.name }} — Prediction{% endblock %}
+{% block body_class %}page-app{% endblock %}
+
+{% block content %}
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon small">&#11041;</span>
+      <span class="brand-name">MediScan<em>Pro</em></span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard.index') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Dashboard
+      </a>
+      <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}"
+         class="sidebar-item active">
+        <svg width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+        New Prediction
+      </a>
+      <a href="{{ url_for('dashboard.history') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12
+                   a2 2 0 002-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        My Reports
+      </a>
+      <a href="{{ url_for('dashboard.profile') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Profile
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar-small">{{ current_user.initials }}</div>
+      <div class="user-info-small">
+        <div class="user-name-small">{{ current_user.full_name }}</div>
+        <div class="user-role">{{ current_user.role | title }}</div>
+      </div>
+      <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4
+                   M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+      </a>
+    </div>
+  </aside>
+
+  <main class="app-main">
+
+    <div class="app-topbar">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg width="22" height="22" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="topbar-title">Disease Prediction</div>
+      <div class="topbar-actions">
+        <div class="topbar-avatar">{{ current_user.initials }}</div>
+      </div>
+    </div>
+
+    <div class="predict-content">
+
+      <div class="predict-header">
+        <a href="{{ url_for('dashboard.index') }}" class="back-link">
+          &larr; Back to Dashboard
+        </a>
+        <h2>
+          {{ disease_config.icon }} {{ disease_config.name }}
+        </h2>
+        <p>
+          Fill in your clinical parameters for an AI-powered
+          risk analysis.
+        </p>
+      </div>
+
+      {% if errors %}
+        <div class="form-errors" role="alert">
+          <strong>Please correct the following:</strong>
+          <ul>
+            {% for error in errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <div class="disease-selector">
+        <label class="selector-label">Switch Disease Module</label>
+        <div class="disease-chips">
+          {% for slug, name in all_diseases.items() %}
+            <a href="{{ url_for('prediction.predict_form', disease=slug) }}"
+               class="chip {% if slug == disease_key %}active{% endif %}">
+              {{ name }}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <form class="predict-form"
+            id="predictForm"
+            method="POST"
+            action="{{ url_for('prediction.submit_prediction',
+                               disease=disease_key) }}"
+            novalidate>
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}" />
+
+        <div class="form-section">
+          <h4 class="form-section-title">
+            {{ disease_config.name }} Parameters
+          </h4>
+          <div class="predict-grid">
+            {% for field in disease_config.fields %}
+              <div class="form-group">
+                <label for="field_{{ field.name }}">
+                  {{ field.label }}
+                  {% if field.unit %}
+                    <span class="field-unit">({{ field.unit }})</span>
+                  {% endif %}
+                </label>
+                <div class="input-wrap">
+                  <input
+                    type="number"
+                    id="field_{{ field.name }}"
+                    name="{{ field.name }}"
+                    step="{% if field.type == 'float' %}0.01{% else %}1{% endif %}"
+                    min="{{ field.min if field.min is defined else '' }}"
+                    max="{{ field.max if field.max is defined else '' }}"
+                    placeholder="{% if field.min is defined and field.max is defined %}{{ field.min }} to {{ field.max }}{% endif %}"
+                    value="{% if form_data and field.name in form_data %}{{ form_data[field.name] }}{% endif %}"
+                    required
+                  />
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="predict-actions">
+          <button type="button"
+                  class="btn-ghost"
+                  onclick="document.getElementById('predictForm').reset()">
+            Reset Form
+          </button>
+          <button type="submit" class="btn-predict" id="predictBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+            Run AI Prediction
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+    <div class="loading-overlay hidden" id="loadingOverlay">
+      <div class="loading-card">
+        <div class="loading-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring r2"></div>
+          <div class="spinner-ring r3"></div>
+          <div class="spinner-center">&#11041;</div>
+        </div>
+        <div class="loading-title">Analyzing Parameters</div>
+        <div class="loading-steps">
+          <div class="loading-step active" id="step1">
+            Preprocessing clinical data...
+          </div>
+          <div class="loading-step" id="step2">
+            Running ML ensemble models...
+          </div>
+          <div class="loading-step" id="step3">
+            Calculating risk scores...
+          </div>
+          <div class="loading-step" id="step4">
+            Generating recommendations...
+          </div>
+        </div>
+        <div class="loading-bar-wrap">
+          <div class="loading-bar" id="loadingBar"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+
+  var form    = document.getElementById('predictForm');
+  var overlay = document.getElementById('loadingOverlay');
+  var bar     = document.getElementById('loadingBar');
+
+  if (!form) { return; }
+
+  // ── ISSUE 3 FIX: Use fetch instead of native form submit ──
+  // This prevents page reload and preserves form data
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();   // ← stops browser from resetting form
+
+    // Validate all required fields
+    var inputs   = form.querySelectorAll('input[required]');
+    var allFilled = true;
+
+    inputs.forEach(function (input) {
+      if (!input.value.trim()) {
+        allFilled = false;
+        input.style.borderColor = 'var(--red)';
+      } else {
+        input.style.borderColor = '';
+      }
+    });
+
+    if (!allFilled) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    // Show loading overlay
+    if (overlay) { overlay.classList.remove('hidden'); }
+
+    // Animate loading steps
+    var steps     = ['step1','step2','step3','step4'];
+    var durations = [700, 1000, 800, 600];
+    var cumulative = 0;
+    var total = durations.reduce(function(a,b){return a+b;}, 0);
+
+    steps.forEach(function(stepId, i) {
+      var delay = cumulative;
+      cumulative += durations[i];
+
+      setTimeout(function() {
+        if (i > 0) {
+          var prev = document.getElementById(steps[i-1]);
+          if (prev) {
+            prev.classList.remove('active');
+            prev.classList.add('done');
+          }
+        }
+        var current = document.getElementById(stepId);
+        if (current) { current.classList.add('active'); }
+        if (bar) {
+          bar.style.width =
+            Math.round((cumulative / total) * 100) + '%';
+        }
+      }, delay);
+    });
+
+    // Collect form data WITHOUT resetting it
+    var formData = new FormData(form);
+
+    // Submit via fetch — page does NOT reload
+    setTimeout(function() {
+      fetch(form.action, {
+        method      : 'POST',
+        body        : formData,
+        credentials : 'same-origin',
+      })
+      .then(function(response) {
+        if (response.redirected) {
+          // Flask redirected to results page — follow it
+          window.location.href = response.url;
+          return;
+        }
+        return response.text();
+      })
+      .then(function(html) {
+        if (html) {
+          // Replace entire page with results HTML
+          document.open();
+          document.write(html);
+          document.close();
+        }
+      })
+      .catch(function(err) {
+        console.error('Prediction request failed:', err);
+        if (overlay) { overlay.classList.add('hidden'); }
+        alert('Prediction failed. Please try again.');
+      });
+    }, total + 200);
+
+  });
+
+})();
+</script>
+{% endblock %}

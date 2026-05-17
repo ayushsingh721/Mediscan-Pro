@@ -1,0 +1,434 @@
+<!-- ============================================================
+     templates/dashboard/profile.html — MediScan Pro | Profile
+============================================================ -->
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block body_class %}page-app{% endblock %}
+
+{% block content %}
+<div class="app-layout">
+
+  <!-- ── Sidebar ─────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon small">⬡</span>
+      <span class="brand-name">MediScan<em>Pro</em></span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard.index') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>Dashboard
+      </a>
+      <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}"
+         class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>New Prediction
+      </a>
+      <a href="{{ url_for('dashboard.history') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12
+                   a2 2 0 002-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>My Reports
+      </a>
+      <a href="{{ url_for('dashboard.profile') }}"
+         class="sidebar-item active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>Profile
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar-small">{{ current_user.initials }}</div>
+      <div class="user-info-small">
+        <div class="user-name-small">{{ current_user.full_name }}</div>
+        <div class="user-role">{{ current_user.role | title }}</div>
+      </div>
+      <a href="{{ url_for('auth.logout') }}" class="logout-btn" title="Logout">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4
+                   M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── Main ───────────────────────────────────────────── -->
+  <main class="app-main">
+
+    <div class="app-topbar">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="topbar-title">My Profile</div>
+      <div class="topbar-actions">
+        <div class="topbar-avatar">{{ current_user.initials }}</div>
+      </div>
+    </div>
+
+    <div class="dash-content">
+
+      <!-- Profile Header Card -->
+      <div class="dash-welcome" style="align-items:center;">
+        <div style="display:flex;align-items:center;gap:20px;">
+          <div style="width:72px;height:72px;border-radius:50%;
+                      background:var(--cyan-dim);color:var(--cyan);
+                      display:flex;align-items:center;justify-content:center;
+                      font-family:var(--font-display);font-size:1.8rem;
+                      font-weight:600;flex-shrink:0;">
+            {{ current_user.initials }}
+          </div>
+          <div>
+            <h2 style="margin-bottom:4px;">{{ current_user.full_name }}</h2>
+            <p style="margin:0;">{{ current_user.email }}</p>
+            <p style="margin:4px 0 0;font-size:0.78rem;
+                      color:var(--text-3);">
+              Member since
+              {{ current_user.created_at.strftime('%B %Y') }}
+              &nbsp;·&nbsp;
+              Role: {{ current_user.role | title }}
+            </p>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <div style="text-align:center;padding:16px 24px;
+                      background:var(--bg-panel);border:1px solid var(--border);
+                      border-radius:var(--radius-md);">
+            <div style="font-family:var(--font-display);font-size:1.6rem;
+                        color:var(--cyan);">
+              {{ total_predictions }}
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-3);">
+              Total Predictions
+            </div>
+          </div>
+          <div style="text-align:center;padding:16px 24px;
+                      background:var(--bg-panel);border:1px solid var(--border);
+                      border-radius:var(--radius-md);">
+            <div style="font-family:var(--font-display);font-size:1.6rem;
+                        color:var(--green);">
+              {{ risk_summary.get('Low', 0) }}
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-3);">
+              Low Risk Results
+            </div>
+          </div>
+          <div style="text-align:center;padding:16px 24px;
+                      background:var(--bg-panel);border:1px solid var(--border);
+                      border-radius:var(--radius-md);">
+            <div style="font-family:var(--font-display);font-size:1.6rem;
+                        color:var(--amber);">
+              {{ risk_summary.get('Moderate', 0) }}
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-3);">
+              Moderate Risk
+            </div>
+          </div>
+          <div style="text-align:center;padding:16px 24px;
+                      background:var(--bg-panel);border:1px solid var(--border);
+                      border-radius:var(--radius-md);">
+            <div style="font-family:var(--font-display);font-size:1.6rem;
+                        color:var(--red);">
+              {{ risk_summary.get('High', 0) }}
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-3);">
+              High Risk
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div class="dash-bottom" style="margin-top:24px;">
+
+        <!-- ── Update Profile Form ───────────────────────── -->
+        <div class="history-panel">
+          <div class="panel-header">
+            <h3>Personal Information</h3>
+          </div>
+
+          <form method="POST"
+                action="{{ url_for('dashboard.update_profile') }}">
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}" />
+
+            <div style="display:flex;flex-direction:column;gap:16px;">
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>First Name</label>
+                  <div class="input-wrap">
+                    <input type="text"
+                           name="first_name"
+                           value="{{ user.first_name }}"
+                           required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Last Name</label>
+                  <div class="input-wrap">
+                    <input type="text"
+                           name="last_name"
+                           value="{{ user.last_name }}"
+                           required />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Email Address</label>
+                <div class="input-wrap">
+                  <input type="email"
+                         value="{{ user.email }}"
+                         disabled
+                         style="opacity:0.5;cursor:not-allowed;" />
+                </div>
+                <small style="color:var(--text-3);font-size:0.75rem;">
+                  Email cannot be changed.
+                </small>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Age</label>
+                  <div class="input-wrap">
+                    <input type="number"
+                           name="age"
+                           min="1" max="120"
+                           value="{{ user.age or '' }}"
+                           placeholder="e.g. 30" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Gender</label>
+                  <div class="input-wrap">
+                    <select name="gender">
+                      <option value="">Select</option>
+                      <option value="Male"
+                        {% if user.gender == 'Male' %}selected{% endif %}>
+                        Male
+                      </option>
+                      <option value="Female"
+                        {% if user.gender == 'Female' %}selected{% endif %}>
+                        Female
+                      </option>
+                      <option value="Other"
+                        {% if user.gender == 'Other' %}selected{% endif %}>
+                        Other
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Phone Number</label>
+                <div class="input-wrap">
+                  <input type="tel"
+                         name="phone"
+                         value="{{ user.phone or '' }}"
+                         placeholder="+91 98765 43210" />
+                </div>
+              </div>
+
+              <div style="display:flex;gap:12px;padding-top:8px;">
+                <button type="submit" class="btn-primary">
+                  Save Changes
+                </button>
+                <a href="{{ url_for('dashboard.profile') }}"
+                   class="btn-ghost">Cancel</a>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+        <!-- ── Right Column ───────────────────────────────── -->
+        <div style="display:flex;flex-direction:column;gap:24px;">
+
+          <!-- Change Password -->
+          <div class="tips-panel">
+            <div class="panel-header">
+              <h3>Change Password</h3>
+            </div>
+
+            <form method="POST"
+                  action="{{ url_for('dashboard.change_password') }}">
+              <input type="hidden"
+                     name="csrf_token"
+                     value="{{ csrf_token() }}" />
+
+              <div style="display:flex;flex-direction:column;gap:14px;">
+
+                <div class="form-group">
+                  <label>Current Password</label>
+                  <div class="input-wrap">
+                    <input type="password"
+                           name="current_password"
+                           placeholder="Enter current password"
+                           required />
+                    <button type="button"
+                            class="toggle-pw"
+                            onclick="togglePassword(
+                              'current_password_input', this)">
+                      <svg width="16" height="16" viewBox="0 0 24 24"
+                           fill="none" stroke="currentColor"
+                           stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11
+                                 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>New Password</label>
+                  <div class="input-wrap">
+                    <input type="password"
+                           id="new_pw_input"
+                           name="new_password"
+                           placeholder="Min. 8 characters"
+                           required
+                           oninput="checkPasswordStrength(this.value)" />
+                  </div>
+                  <div class="pw-strength" id="pw-strength">
+                    <div class="pw-bar">
+                      <div id="pw-fill"></div>
+                    </div>
+                    <span id="pw-label">Enter new password</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Confirm New Password</label>
+                  <div class="input-wrap">
+                    <input type="password"
+                           name="confirm_password"
+                           placeholder="Repeat new password"
+                           required />
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-predict"
+                        style="width:100%;">
+                  Update Password
+                </button>
+
+              </div>
+            </form>
+          </div>
+
+          <!-- Account Info -->
+          <div class="tips-panel">
+            <div class="panel-header">
+              <h3>Account Details</h3>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;justify-content:space-between;
+                          padding:10px 0;border-bottom:1px solid var(--border);
+                          font-size:0.85rem;">
+                <span style="color:var(--text-3);">Account Status</span>
+                <span style="color:var(--green);font-weight:600;">
+                  ● Active
+                </span>
+              </div>
+              <div style="display:flex;justify-content:space-between;
+                          padding:10px 0;border-bottom:1px solid var(--border);
+                          font-size:0.85rem;">
+                <span style="color:var(--text-3);">Role</span>
+                <span>{{ current_user.role | title }}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;
+                          padding:10px 0;border-bottom:1px solid var(--border);
+                          font-size:0.85rem;">
+                <span style="color:var(--text-3);">Member Since</span>
+                <span>
+                  {{ current_user.created_at.strftime('%b %d, %Y') }}
+                </span>
+              </div>
+              <div style="display:flex;justify-content:space-between;
+                          padding:10px 0;font-size:0.85rem;">
+                <span style="color:var(--text-3);">Last Login</span>
+                <span>
+                  {% if current_user.last_login %}
+                    {{ current_user.last_login.strftime('%b %d, %Y %I:%M %p') }}
+                  {% else %}
+                    First session
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="tips-panel"
+               style="border-color:rgba(239,68,68,0.2);">
+            <div class="panel-header">
+              <h3 style="color:var(--red);">Danger Zone</h3>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-2);
+                      margin-bottom:16px;">
+              Logging out will end your current session immediately.
+            </p>
+            <a href="{{ url_for('auth.logout') }}"
+               class="btn-ghost"
+               style="color:var(--red);border-color:rgba(239,68,68,0.3);
+                      width:100%;text-align:center;display:block;
+                      padding:11px;">
+              Logout of MediScan Pro
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Recent Predictions on Profile -->
+      {% if recent_predictions %}
+        <div class="history-panel" style="margin-top:24px;">
+          <div class="panel-header">
+            <h3>Recent Predictions</h3>
+            <a href="{{ url_for('dashboard.history') }}">View All</a>
+          </div>
+          <div class="history-list">
+            {% for pred in recent_predictions %}
+              <a href="{{ pred.detail_url }}"
+                 class="history-item"
+                 style="text-decoration:none;">
+                <div class="hist-icon {{ pred.risk_css }}">
+                  {{ pred.risk_emoji }}
+                </div>
+                <div class="hist-info">
+                  <div class="hist-name">{{ pred.disease_name }}</div>
+                  <div class="hist-date">{{ pred.date_full }}</div>
+                </div>
+                <div class="hist-result {{ pred.risk_css }}">
+                  {{ pred.risk_level }} · {{ pred.confidence_pct }}%
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+    </div><!-- /dash-content -->
+  </main>
+</div>
+{% endblock %}
