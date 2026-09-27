@@ -1,15 +1,10 @@
 # ============================================================
 # requirements.txt — MediScan Pro Python Dependencies
 # ============================================================
-# Install all dependencies with:
-#   pip install -r requirements.txt
-# ============================================================
-
 
 # ── CORE FRAMEWORK ───────────────────────────────────────────
 Flask==3.0.3
 Werkzeug==3.0.3
-
 
 # ── AUTHENTICATION & SESSION ─────────────────────────────────
 Flask-Login==0.6.3
@@ -17,18 +12,15 @@ Flask-Session==0.8.0
 Flask-Bcrypt==1.0.1
 itsdangerous==2.2.0
 
-
 # ── DATABASE ─────────────────────────────────────────────────
 Flask-SQLAlchemy==3.1.1
 Flask-Migrate==4.0.7
 SQLAlchemy==2.0.31
 
-
 # ── FORMS & VALIDATION ───────────────────────────────────────
 Flask-WTF==1.2.1
 WTForms==3.1.2
 email-validator==2.2.0
-
 
 # ── MACHINE LEARNING ─────────────────────────────────────────
 numpy==1.26.4
@@ -36,20 +28,13 @@ pandas==2.2.2
 scikit-learn==1.5.1
 joblib==1.4.2
 
-
 # ── UTILITIES ────────────────────────────────────────────────
 python-dotenv==1.0.1
 Jinja2==3.1.4
 click==8.1.7
 
-
 # ── REPORT GENERATION ────────────────────────────────────────
 reportlab==4.2.2
 
-
-# ── PRODUCTION SERVER ─────────────────────────────────────────
-gunicorn==22.0.0
-
-
-# ── DEVELOPMENT ONLY ─────────────────────────────────────────
-flask-debugtoolbar==0.15.1
+# ── PRODUCTION SERVER ────────────────────────────────────────
+gunicorn==21.2.0
