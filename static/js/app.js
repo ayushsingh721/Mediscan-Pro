@@ -1,54 +1,66 @@
 /* ═══════════════════════════════════════════
-   MEDISCAN PRO — APPLICATION LOGIC
+   MEDISCAN PRO — CLINICAL INTELLIGENCE JAVASCRIPT
 ═══════════════════════════════════════════ */
 
-// ── STATE ─────────────────────────────────
-let currentDisease = 'Diabetes Mellitus';
-
-// ── PAGE NAVIGATION ───────────────────────
-function showPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById('page-' + pageId);
-  if (target) {
-    target.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+// ── NAVIGATION & MOBILE MENU ──────────────
+function toggleMobileNav() {
+  const nav = document.getElementById('mobileNav');
+  if (nav) nav.classList.toggle('open');
 }
 
-// ── HOME NAV ──────────────────────────────
+function closeMobileNav() {
+  const nav = document.getElementById('mobileNav');
+  if (nav) nav.classList.remove('open');
+}
+
 function scrollToSection(id) {
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   closeMobileNav();
 }
 
-function toggleMobileNav() {
-  document.getElementById('mobileNav').classList.toggle('open');
-}
-function closeMobileNav() {
-  document.getElementById('mobileNav').classList.remove('open');
+// ── SIDEBAR ───────────────────────────────
+function toggleSidebar() {
+  const sidebars = document.querySelectorAll('.sidebar');
+  sidebars.forEach(sb => {
+    if (window.innerWidth <= 768) {
+      sb.classList.toggle('mobile-open');
+    } else {
+      sb.classList.toggle('collapsed');
+    }
+  });
 }
 
-// ── AUTH ──────────────────────────────────
+// ── AUTHENTICATION TABS & PASSWORD ────────
 function switchTab(tab) {
-  document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
-  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
-  document.getElementById('form-signin').classList.toggle('hidden', tab !== 'signin');
-  document.getElementById('form-signup').classList.toggle('hidden', tab !== 'signup');
+  const tabSignin = document.getElementById('tab-signin');
+  const tabSignup = document.getElementById('tab-signup');
+  const formSignin = document.getElementById('form-signin');
+  const formSignup = document.getElementById('form-signup');
+
+  if (tabSignin) tabSignin.classList.toggle('active', tab === 'signin');
+  if (tabSignup) tabSignup.classList.toggle('active', tab === 'signup');
+  if (formSignin) formSignin.classList.toggle('hidden', tab !== 'signin');
+  if (formSignup) formSignup.classList.toggle('hidden', tab !== 'signup');
 }
 
 function togglePassword(inputId, btn) {
   const input = document.getElementById(inputId);
+  if (!input) return;
   const isText = input.type === 'text';
   input.type = isText ? 'password' : 'text';
-  btn.innerHTML = isText
-    ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
-    : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22"/></svg>`;
+  if (btn) {
+    btn.innerHTML = isText
+      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
+      : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22"/></svg>`;
+  }
 }
 
 function checkPasswordStrength(value) {
   const fill  = document.getElementById('pw-fill');
   const label = document.getElementById('pw-label');
+  if (!fill || !label) return;
+
   let strength = 0;
   if (value.length >= 8) strength++;
   if (/[A-Z]/.test(value)) strength++;
@@ -68,203 +80,67 @@ function checkPasswordStrength(value) {
   label.style.color = lvl.color;
 }
 
-function handleSignIn(e) {
-  e.preventDefault();
-  const email = document.getElementById('signin-email').value;
-  const pw    = document.getElementById('signin-password').value;
-  const err   = document.getElementById('signin-error');
+// ── DAILY TASKS TOGGLE (AJAX) ─────────────
+function toggleTask(taskId) {
+  const csrfEl = document.getElementById('csrf-token');
+  const csrfToken = csrfEl ? csrfEl.getAttribute('data-token') : '';
 
-  if (!email.includes('@')) {
-    err.textContent = 'Please enter a valid email address.'; return;
-  }
-  if (pw.length < 6) {
-    err.textContent = 'Password must be at least 6 characters.'; return;
-  }
-  err.textContent = '';
-  showPage('dashboard');
-}
-
-function handleSignUp(e) {
-  e.preventDefault();
-  const pw      = document.getElementById('signup-password').value;
-  const confirm = document.getElementById('signup-confirm').value;
-  const err     = document.getElementById('signup-error');
-
-  if (pw.length < 8) {
-    err.textContent = 'Password must be at least 8 characters.'; return;
-  }
-  if (pw !== confirm) {
-    err.textContent = 'Passwords do not match.'; return;
-  }
-  err.textContent = '';
-  showPage('dashboard');
-}
-
-// ── SIDEBAR ───────────────────────────────
-function toggleSidebar() {
-  const sidebars = document.querySelectorAll('.sidebar');
-  sidebars.forEach(sb => {
-    if (window.innerWidth <= 768) {
-      sb.classList.toggle('mobile-open');
-    } else {
-      sb.classList.toggle('collapsed');
+  fetch(`/dashboard/tasks/${taskId}/toggle`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken
     }
-  });
-}
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      const row = document.getElementById(`task-row-${taskId}`);
+      const chk = document.getElementById(`check-${taskId}`);
+      if (row) {
+        const text = row.querySelector('.task-text');
+        const badge = row.querySelector('.task-status-badge');
 
-function setActiveNav(el) {
-  el.closest('.sidebar-nav').querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-  el.classList.add('active');
-}
-
-// ── DISEASE SELECTION ─────────────────────
-function selectDisease(name) {
-  currentDisease = name;
-  const chips = document.querySelectorAll('#diseaseChips .chip');
-  chips.forEach(c => {
-    c.classList.toggle('active', c.onclick.toString().includes(name.replace("'","\\'")));
-  });
-  document.getElementById('result-disease-name').textContent = name;
-}
-
-function selectChip(el, name) {
-  document.querySelectorAll('#diseaseChips .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  currentDisease = name;
-}
-
-// ── PREDICTION FLOW ───────────────────────
-function runPrediction(e) {
-  e.preventDefault();
-
-  const overlay = document.getElementById('loadingOverlay');
-  const bar     = document.getElementById('loadingBar');
-  overlay.classList.remove('hidden');
-
-  // Animate steps
-  const steps = ['step1','step2','step3','step4'];
-  const durations = [800, 1200, 900, 700];
-  let elapsed = 0;
-  let cumulative = 0;
-  const total = durations.reduce((a,b) => a+b, 0);
-
-  // Reset
-  steps.forEach(s => {
-    const el = document.getElementById(s);
-    el.classList.remove('active','done');
-  });
-  bar.style.width = '0';
-
-  steps.forEach((stepId, i) => {
-    const delay = cumulative;
-    cumulative += durations[i];
-
-    setTimeout(() => {
-      // Mark previous as done
-      if (i > 0) {
-        document.getElementById(steps[i-1]).classList.remove('active');
-        document.getElementById(steps[i-1]).classList.add('done');
+        if (data.is_completed) {
+          row.classList.add('task-done');
+          if (chk) chk.checked = true;
+          if (text) {
+            text.style.textDecoration = 'line-through';
+            text.style.color = 'var(--text-3)';
+          }
+          if (badge) {
+            badge.textContent = 'Completed ✓';
+            badge.style.color = 'var(--green)';
+          }
+        } else {
+          row.classList.remove('task-done');
+          if (chk) chk.checked = false;
+          if (text) {
+            text.style.textDecoration = 'none';
+            text.style.color = 'var(--text-1)';
+          }
+          if (badge) {
+            badge.textContent = 'Pending';
+            badge.style.color = 'var(--text-3)';
+          }
+        }
       }
-      document.getElementById(stepId).classList.add('active');
 
-      const pct = Math.round(((cumulative) / total) * 100);
-      bar.style.width = pct + '%';
-    }, delay);
-  });
+      // Update dashboard progress metrics
+      const countEl = document.getElementById('tasksCompletedCount');
+      const pctTextEl = document.getElementById('tasksPctText');
+      const barEl = document.getElementById('tasksProgressBar');
+      const streakEl = document.getElementById('healthStreakCount');
 
-  // Finish
-  const finishDelay = total + 400;
-  setTimeout(() => {
-    document.getElementById(steps[steps.length-1]).classList.remove('active');
-    document.getElementById(steps[steps.length-1]).classList.add('done');
-    bar.style.width = '100%';
-  }, total);
-
-  setTimeout(() => {
-    overlay.classList.add('hidden');
-    showResultsPage();
-  }, finishDelay);
-}
-
-function showResultsPage() {
-  // Randomize a low/moderate result for demo
-  const riskPct = Math.floor(Math.random() * 35) + 8;
-  const isLow = riskPct < 30;
-  const isMod = riskPct >= 30 && riskPct < 60;
-
-  // Update result page
-  document.getElementById('result-disease-name').textContent = currentDisease;
-  document.getElementById('result-date').textContent = new Date().toLocaleString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric',
-    hour: 'numeric', minute: '2-digit'
-  });
-
-  const icon  = document.getElementById('verdictIcon');
-  const title = document.getElementById('verdictTitle');
-  const sub   = document.getElementById('verdictSub');
-
-  if (isLow) {
-    icon.className  = 'verdict-icon';
-    icon.textContent = '✓';
-    title.textContent = 'Low Risk Detected';
-    sub.textContent = `No significant indicators for ${currentDisease} found in your parameters.`;
-  } else if (isMod) {
-    icon.className  = 'verdict-icon warn';
-    icon.textContent = '⚠';
-    title.textContent = 'Moderate Risk Detected';
-    sub.textContent = `Some elevated risk markers for ${currentDisease} were found. Lifestyle changes recommended.`;
-  } else {
-    icon.className  = 'verdict-icon danger';
-    icon.textContent = '!';
-    title.textContent = 'Elevated Risk Detected';
-    sub.textContent = `Multiple risk indicators for ${currentDisease} detected. Please consult a physician promptly.`;
-  }
-
-  // Animate gauge
-  document.getElementById('gaugePct').textContent = riskPct + '%';
-  const dashoffset = 251 - (251 * riskPct / 100);
-  document.getElementById('gaugeFill').style.strokeDashoffset = dashoffset;
-
-  showPage('results');
-}
-
-function resetForm() {
-  document.getElementById('predictForm').reset();
-  document.querySelectorAll('#diseaseChips .chip').forEach((c,i) => c.classList.toggle('active', i===0));
-  currentDisease = 'Diabetes Mellitus';
-}
-
-// ── REPORT DOWNLOAD (mock) ─────────────────
-function downloadReport() {
-  const btn = event.currentTarget;
-  const orig = btn.innerHTML;
-  btn.innerHTML = '⟳ Generating...';
-  btn.disabled = true;
-
-  setTimeout(() => {
-    const content = `MEDISCAN PRO — PREDICTION REPORT
-================================
-Patient: John Doe
-Date: ${new Date().toLocaleString()}
-Disease Module: ${currentDisease}
-
-DISCLAIMER: This is a screening tool only.
-Consult a qualified healthcare professional for diagnosis.
-
-================================
-MediScan Pro | clinicalgrade.ai
-`;
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `mediscan-report-${Date.now()}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    btn.innerHTML = orig;
-    btn.disabled  = false;
-  }, 1200);
+      if (countEl) countEl.textContent = `${data.completed}/${data.total}`;
+      if (pctTextEl) pctTextEl.textContent = `${data.pct}%`;
+      if (barEl) barEl.style.width = `${data.pct}%`;
+      if (streakEl) {
+        streakEl.innerHTML = `${data.streak} <small style="font-size: 0.85rem; font-weight: normal; color: var(--text-2);">days</small>`;
+      }
+    }
+  })
+  .catch(err => console.error('Task toggle error:', err));
 }
 
 // ── ANIMATE CHART BARS ON SCROLL ──────────
@@ -287,28 +163,91 @@ function observeChartBars() {
   document.querySelectorAll('.about-chart').forEach(el => observer.observe(el));
 }
 
-// ── INIT ──────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  observeChartBars();
+// ── AI HEALTH TIP REFRESHER ───────────────
+function initAiTipRefresher() {
+  const btn = document.getElementById('refreshAiTipBtn');
+  if (!btn) return;
 
-  // Stagger hero content animation
-  const heroItems = document.querySelectorAll('.hero-badge, .hero-title, .hero-desc, .hero-actions, .hero-stats');
-  heroItems.forEach((el, i) => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    el.style.transition = `opacity 0.6s ease ${i * 0.12}s, transform 0.6s ease ${i * 0.12}s`;
-    requestAnimationFrame(() => {
+  btn.addEventListener('click', () => {
+    const icon = document.getElementById('refreshAiTipIcon');
+    if (icon) {
+      icon.style.transition = 'transform 0.5s ease';
+      icon.style.transform = 'rotate(360deg)';
+    }
+    btn.style.opacity = '0.6';
+    btn.disabled = true;
+
+    fetch('/dashboard/ai-health-tip', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCsrfToken(),
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && data.tip) {
+        const tip = data.tip;
+        const catBadge = document.getElementById('aiTipCategoryBadge');
+        const iconEl = document.getElementById('aiTipIcon');
+        const titleEl = document.getElementById('aiTipTitle');
+        const ratEl = document.getElementById('aiTipRationale');
+        const actEl = document.getElementById('aiTipAction');
+        const bioEl = document.getElementById('aiTipBiomarker');
+        const impEl = document.getElementById('aiTipImpact');
+
+        const card = document.getElementById('aiHealthTipCard');
+        if (card) {
+          card.style.transition = 'opacity 0.2s ease';
+          card.style.opacity = '0.4';
+          setTimeout(() => {
+            if (catBadge) catBadge.textContent = tip.category;
+            if (iconEl) iconEl.textContent = tip.icon;
+            if (titleEl) titleEl.textContent = tip.title;
+            if (ratEl) ratEl.textContent = tip.rationale;
+            if (actEl) actEl.textContent = tip.action_step;
+            if (bioEl) bioEl.textContent = tip.target_biomarker;
+            if (impEl) impEl.textContent = tip.impact;
+            card.style.opacity = '1';
+          }, 200);
+        }
+      }
+    })
+    .catch(err => console.error('AI Tip error:', err))
+    .finally(() => {
       setTimeout(() => {
-        el.style.opacity = '1';
-        el.style.transform = 'translateY(0)';
-      }, 50);
+        if (icon) icon.style.transform = 'rotate(0deg)';
+        btn.style.opacity = '1';
+        btn.disabled = false;
+      }, 500);
     });
   });
+}
 
-  // Close mobile nav on outside click
+// ── DYNAMIC GREETING TIME SYNC ────────────
+function updateGreeting() {
+  const el = document.getElementById('greetingTimeOfDay');
+  if (!el) return;
+  const h = new Date().getHours();
+  if (h < 12) {
+    el.textContent = 'Morning';
+  } else if (h < 17) {
+    el.textContent = 'Afternoon';
+  } else {
+    el.textContent = 'Evening';
+  }
+}
+
+// ── INITIALIZATION ────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  observeChartBars();
+  initAiTipRefresher();
+  updateGreeting();
+
+  // Close mobile nav when clicking outside
   document.addEventListener('click', e => {
-    const nav  = document.getElementById('mobileNav');
-    const ham  = document.getElementById('hamburger');
+    const nav = document.getElementById('mobileNav');
+    const ham = document.getElementById('hamburger');
     if (nav && !nav.contains(e.target) && !ham.contains(e.target)) {
       closeMobileNav();
     }

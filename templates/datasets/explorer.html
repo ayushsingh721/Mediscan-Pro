@@ -1,0 +1,463 @@
+{% extends 'base.html' %}
+
+{% block title %}Clinical Datasets & ML Benchmarks — MediScan Pro{% endblock %}
+{% block body_class %}page-datasets{% endblock %}
+
+{% block extra_css %}
+<style>
+.datasets-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+.datasets-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.datasets-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(13, 148, 136, 0.15);
+  border: 1px solid rgba(13, 148, 136, 0.35);
+  color: #2dd4bf;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+.datasets-title {
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: var(--text-primary, #f8fafc);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.datasets-title em {
+  font-style: normal;
+  color: #38bdf8;
+}
+.datasets-subtitle {
+  color: var(--text-secondary, #94a3b8);
+  max-width: 680px;
+  margin: 0 auto 24px;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+/* Nav tabs */
+.datasets-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 36px;
+}
+.dataset-tab-btn {
+  background: var(--card-bg, #1e293b);
+  color: var(--text-secondary, #94a3b8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.dataset-tab-btn:hover {
+  background: #334155;
+  color: #f8fafc;
+  transform: translateY(-2px);
+}
+.dataset-tab-btn.active {
+  background: linear-gradient(135deg, #0d9488, #0284c7);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.4);
+}
+
+/* Detail Card */
+.dataset-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 36px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.disease-title-box h2 {
+  font-size: 1.8rem;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.disease-title-box p {
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+.download-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #38bdf8;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.download-action-btn:hover {
+  background: #0ea5e9;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Metric stats grid */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.metric-box {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+.metric-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+.metric-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+/* Benchmarks Table */
+.benchmark-section {
+  margin-bottom: 32px;
+}
+.section-heading {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.custom-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+}
+.custom-table th {
+  background: rgba(30, 41, 59, 0.9);
+  padding: 12px 16px;
+  color: #cbd5e1;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.custom-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+}
+.custom-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+  color: #f8fafc;
+}
+.badge-winner {
+  display: inline-block;
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Sample data preview table */
+.sample-preview-box {
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 20px;
+}
+.sample-table-container {
+  overflow-x: auto;
+}
+.code-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: monospace;
+  font-size: 0.82rem;
+}
+.code-preview-table th {
+  padding: 8px 12px;
+  color: #38bdf8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+}
+.code-preview-table td {
+  padding: 8px 12px;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+
+/* Academic highlights */
+.academic-highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+}
+.academic-card {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 24px;
+}
+.academic-card h3 {
+  font-size: 1.1rem;
+  color: #f8fafc;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.academic-card p {
+  color: #94a3b8;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- NAV -->
+<nav class="nav-home" style="margin-bottom: 20px;">
+  <div class="nav-brand">
+    <a href="{{ url_for('home') }}" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+      <span class="brand-icon">&#11041;</span>
+      <span class="brand-name" style="color: #fff;">MediScan<em>Pro</em></span>
+    </a>
+  </div>
+  <ul class="nav-links">
+    <li><a href="{{ url_for('home') }}">Home</a></li>
+    <li><a href="{{ url_for('datasets_explorer') }}" style="color: #38bdf8;">Datasets & ML</a></li>
+    {% if current_user.is_authenticated %}
+      <li><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+      <li><a href="{{ url_for('prediction.predict_form', disease='diabetes') }}">New Prediction</a></li>
+    {% else %}
+      <li><a href="{{ url_for('auth.login') }}">Sign In</a></li>
+    {% endif %}
+  </ul>
+  <div>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('auth.logout') }}" class="btn-primary" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #f87171; margin-right: 8px;">
+        Log Out
+      </a>
+      <a href="{{ url_for('dashboard.index') }}" class="btn-primary">
+        Dashboard &rarr;
+      </a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}" class="btn-primary" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #f8fafc; margin-right: 8px;">
+        Sign In
+      </a>
+      <a href="{{ url_for('auth.signup') }}" class="btn-primary">
+        Get Started
+      </a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="datasets-container">
+  
+  <div class="datasets-header">
+    <div class="datasets-badge">
+      <span>📊</span> Clinical Research & Capstone Benchmarks
+    </div>
+    <h1 class="datasets-title">
+      Machine Learning <em>Benchmark Datasets</em>
+    </h1>
+    <p class="datasets-subtitle">
+      Explore authentic clinical datasets, biomarker distributions, and multi-model benchmark evaluation metrics (UCI ML Repository, NIDDK, Cleveland Clinic, & PhysioNet) powering MediScan Pro.
+    </p>
+  </div>
+
+  <!-- Disease Tabs -->
+  <div class="datasets-nav">
+    {% for key, d in datasets.items() %}
+      <a href="{{ url_for('datasets_explorer', selected=key) }}"
+         class="dataset-tab-btn {% if key == selected_key %}active{% endif %}">
+        <span>{{ d.icon }}</span> {{ d.name }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Selected Dataset Card -->
+  <div class="dataset-card">
+    <div class="card-header-flex">
+      <div class="disease-title-box">
+        <h2>{{ current_data.icon }} {{ current_data.name }} Benchmark</h2>
+        <p><strong>Clinical Repository:</strong> {{ current_data.source }} &bull; <strong>Clinical Target:</strong> {{ current_data.target_description }}</p>
+      </div>
+      <div>
+        <a href="{{ url_for('download_dataset', disease=selected_key) }}" class="download-action-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Download {{ selected_key }}.csv
+        </a>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metric-grid">
+      <div class="metric-box">
+        <div class="metric-label">Sample Count (N)</div>
+        <div class="metric-value">{{ current_data.samples }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Input Biomarkers</div>
+        <div class="metric-value">{{ current_data.feature_count }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Top Algorithm</div>
+        <div class="metric-value" style="font-size: 1.1rem; color: #34d399;">{{ current_data.top_model }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Peak Benchmark Acc</div>
+        <div class="metric-value" style="color: #38bdf8;">{{ current_data.top_acc }}</div>
+      </div>
+    </div>
+
+    <!-- Benchmarks Table -->
+    <div class="benchmark-section">
+      <div class="section-heading">
+        <span>⚡</span> Comparative Model Benchmark Evaluation (5-Fold Stratified CV)
+      </div>
+      <div class="custom-table-wrapper">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>ML Model Architecture</th>
+              <th>Accuracy</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>F1-Score</th>
+              <th>ROC-AUC</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in current_data.benchmarks %}
+            <tr>
+              <td style="font-weight: 600; color: #f8fafc;">{{ m.model }}</td>
+              <td>{{ m.acc }}</td>
+              <td>{{ m.prec }}</td>
+              <td>{{ m.rec }}</td>
+              <td>{{ m.f1 }}</td>
+              <td>{{ m.auc }}</td>
+              <td>
+                {% if m.is_best %}
+                  <span class="badge-winner">Best Performer</span>
+                {% else %}
+                  <span style="color: #64748b; font-size: 0.78rem;">Evaluated</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sample Data Preview -->
+    <div class="sample-preview-box">
+      <div class="section-heading" style="margin-bottom: 12px;">
+        <span>🔍</span> Clinical Data Sample Preview (First 5 Rows of {{ selected_key }}.csv)
+      </div>
+      <div class="sample-table-container">
+        <table class="code-preview-table">
+          <thead>
+            <tr>
+              {% for col in sample_columns %}
+                <th>{{ col }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in sample_rows %}
+            <tr>
+              {% for val in row %}
+                <td>{{ val }}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Academic / Viva Highlights Grid -->
+  <div class="academic-highlight-grid">
+    <div class="academic-card">
+      <h3><span>🧪</span> Data Preprocessing Standards</h3>
+      <p>
+        Features undergo median imputation for zero/missing physiological readings (e.g. Glucose=0, BMI=0) followed by <code>StandardScaler</code> Z-score normalization: \(z = (x - \mu) / \sigma\).
+      </p>
+    </div>
+    <div class="academic-card">
+      <h3><span>🎯</span> Stratified Validation Strategy</h3>
+      <p>
+        Trained with 80/20 train-test splits and 5-fold stratified cross-validation to maintain consistent class balances across disease domains and prevent overfitting.
+      </p>
+    </div>
+    <div class="academic-card">
+      <h3><span>🛡️</span> Dual-Engine Resiliency</h3>
+      <p>
+        MediScan Pro integrates trained scikit-learn models with clinical heuristic fallbacks, ensuring continuous operational availability even during remote edge deployments.
+      </p>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

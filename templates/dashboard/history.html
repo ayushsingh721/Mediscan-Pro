@@ -1,47 +1,41 @@
-<!-- ============================================================
-     dashboard/history.html — MediScan Pro | Full History Page
-============================================================ -->
 {% extends 'base.html' %}
-{% block title %}Prediction History{% endblock %}
+{% block title %}Health Timeline &amp; Reports — MediScan Pro{% endblock %}
 {% block body_class %}page-app{% endblock %}
 
 {% block content %}
 <div class="app-layout">
 
+  <!-- ── Sidebar ─────────────────────────────────────────── -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <span class="brand-icon small">⬡</span>
       <span class="brand-name">MediScan<em>Pro</em></span>
     </div>
     <nav class="sidebar-nav">
-      <a href="{{ url_for('dashboard.index') }}"
-         class="sidebar-item">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
+      <a href="{{ url_for('dashboard.index') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7"/>
           <rect x="14" y="3" width="7" height="7"/>
           <rect x="14" y="14" width="7" height="7"/>
           <rect x="3" y="14" width="7" height="7"/>
-        </svg>
-        Dashboard
+        </svg>Dashboard
       </a>
-      <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}"
-         class="sidebar-item">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
+      <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-        </svg>
-        New Prediction
+        </svg>New Prediction
       </a>
-      <a href="{{ url_for('dashboard.history') }}"
-         class="sidebar-item active">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002
-                   2h12a2 2 0 002-2V8z"/>
+      <a href="{{ url_for('dashboard.history') }}" class="sidebar-item active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>
-        </svg>
-        My Reports
+        </svg>Health Timeline
+      </a>
+      <a href="{{ url_for('dashboard.profile') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>Health Profile
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -50,124 +44,123 @@
         <div class="user-name-small">{{ current_user.full_name }}</div>
         <div class="user-role">{{ current_user.role | title }}</div>
       </div>
-      <a href="{{ url_for('auth.logout') }}" class="logout-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
-          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4
-                   M16 17l5-5-5-5M21 12H9"/>
+      <a href="{{ url_for('auth.logout') }}" class="logout-btn" title="Logout">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
         </svg>
       </a>
     </div>
   </aside>
 
+  <!-- ── Main Content ────────────────────────────────────── -->
   <main class="app-main">
 
     <div class="app-topbar">
-      <button class="sidebar-toggle" onclick="toggleSidebar()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
+      <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="3" y1="6"  x2="21" y2="6"/>
           <line x1="3" y1="12" x2="21" y2="12"/>
           <line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
       </button>
-      <div class="topbar-title">Prediction History</div>
+      <div class="topbar-title">Health Timeline &amp; Reports</div>
       <div class="topbar-actions">
+        <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}" class="btn-primary" style="padding:6px 14px;font-size:0.82rem;">
+          + New Prediction
+        </a>
         <div class="topbar-avatar">{{ current_user.initials }}</div>
       </div>
     </div>
 
     <div class="dash-content">
 
-      <div class="predict-header">
-        <h2>My Prediction History</h2>
-        <p>All your past disease assessments in one place.</p>
+      <div class="predict-header" style="margin-bottom: 20px;">
+        <h2>My Clinical Health Timeline</h2>
+        <p>Complete historical record of all machine-learning screenings, probability scores, and downloadable medical reports.</p>
       </div>
 
-      <!-- Filters -->
-      <form method="GET"
-            action="{{ url_for('dashboard.history') }}"
-            style="display:flex;gap:12px;flex-wrap:wrap;
-                   margin-bottom:24px;align-items:flex-end;">
+      <!-- Filters & Search Bar -->
+      <form method="GET" action="{{ url_for('dashboard.history') }}" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;align-items:flex-end;">
+        <div class="form-group" style="min-width:200px;flex:1;">
+          <label>Search Assessments</label>
+          <div class="input-wrap">
+            <input type="text" name="q" value="{{ search_q or '' }}" placeholder="Search by disease, result, or model..." />
+          </div>
+        </div>
+
         <div class="form-group" style="min-width:180px;">
           <label>Filter by Disease</label>
           <div class="input-wrap">
             <select name="disease">
               <option value="">All Diseases</option>
               {% for name in disease_names %}
-                <option value="{{ name }}"
-                  {% if disease_filter == name %}selected{% endif %}>
-                  {{ name }}
-                </option>
+                <option value="{{ name }}" {% if disease_filter == name %}selected{% endif %}>{{ name }}</option>
               {% endfor %}
             </select>
           </div>
         </div>
-        <div class="form-group" style="min-width:160px;">
+
+        <div class="form-group" style="min-width:150px;">
           <label>Filter by Risk</label>
           <div class="input-wrap">
             <select name="risk">
               <option value="">All Risk Levels</option>
-              <option value="Low"
-                {% if risk_filter == 'Low' %}selected{% endif %}>
-                Low
-              </option>
-              <option value="Moderate"
-                {% if risk_filter == 'Moderate' %}selected{% endif %}>
-                Moderate
-              </option>
-              <option value="High"
-                {% if risk_filter == 'High' %}selected{% endif %}>
-                High
-              </option>
+              <option value="Low" {% if risk_filter == 'Low' %}selected{% endif %}>Low</option>
+              <option value="Moderate" {% if risk_filter == 'Moderate' %}selected{% endif %}>Moderate</option>
+              <option value="High" {% if risk_filter == 'High' %}selected{% endif %}>High</option>
             </select>
           </div>
         </div>
-        <button type="submit" class="btn-primary">Apply Filter</button>
-        <a href="{{ url_for('dashboard.history') }}"
-           class="btn-ghost">Clear</a>
+
+        <button type="submit" class="btn-primary" style="padding:10px 18px;">Filter</button>
+        <a href="{{ url_for('dashboard.history') }}" class="btn-ghost" style="padding:10px 18px;">Reset</a>
       </form>
 
-      <!-- History Table -->
+      <!-- History Records List -->
       {% if predictions %}
         <div class="history-panel" style="margin-bottom:24px;">
           <div class="history-list">
             {% for pred in predictions %}
-              <div class="history-item">
-                <div class="hist-icon {{ pred.risk_css }}">
-                  {{ pred.risk_emoji }}
+              <div class="history-item" style="display:flex;justify-content:space-between;align-items:center;padding:16px;margin-bottom:10px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-sm);transition:all 0.2s;">
+                <div style="display:flex;align-items:center;gap:14px;">
+                  <div class="hist-icon {{ pred.risk_css }}" style="font-size:1.3rem;">
+                    {{ pred.risk_emoji }}
+                  </div>
+                  <div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <a href="{{ pred.detail_url }}" style="text-decoration:none;color:var(--text-1);font-weight:600;font-size:0.95rem;">
+                        {{ pred.disease_name }}
+                      </a>
+                      <span class="risk-badge risk-{{ pred.risk_css.lower() }}" style="font-size:0.72rem;padding:2px 8px;">
+                        {{ pred.risk_level }} Risk
+                      </span>
+                    </div>
+                    <div style="font-size:0.78rem;color:var(--text-3);margin-top:4px;">
+                      <span>{{ pred.date_full }}</span>
+                      &nbsp;&middot;&nbsp;
+                      <span>Result: <strong>{{ pred.result }}</strong></span>
+                      &nbsp;&middot;&nbsp;
+                      <span>Risk Probability: <strong>{{ pred.confidence_pct }}%</strong></span>
+                      &nbsp;&middot;&nbsp;
+                      <span>Model: {{ pred.model_used }}</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="hist-info">
-                  <div class="hist-name">{{ pred.disease_name }}</div>
-                  <div class="hist-date">{{ pred.date_full }}</div>
-                </div>
-                <div class="hist-result {{ pred.risk_css }}">
-                  {{ pred.risk_level }} · {{ pred.confidence_pct }}%
-                </div>
-                <div style="display:flex;gap:8px;margin-left:12px;">
-                  <a href="{{ pred.detail_url }}"
-                     class="btn-ghost"
-                     style="padding:6px 12px;font-size:0.78rem;">
-                    View
+
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <a href="{{ pred.detail_url }}" class="btn-ghost" style="padding:6px 12px;font-size:0.78rem;">
+                    Details
                   </a>
-                  <a href="{{ pred.download_url }}"
-                     class="btn-ghost"
-                     style="padding:6px 12px;font-size:0.78rem;">
-                    ↓ Report
+                  <a href="{{ pred.download_url }}" class="btn-primary" style="padding:6px 12px;font-size:0.78rem;display:inline-flex;align-items:center;gap:5px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    PDF
                   </a>
-                  <form method="POST"
-                        action="{{ url_for('dashboard.delete_prediction',
-                                  prediction_id=pred.id) }}"
-                        onsubmit="return confirm(
-                          'Delete this prediction record?');">
-                    <input type="hidden"
-                           name="csrf_token"
-                           value="{{ csrf_token() }}" />
-                    <button type="submit"
-                            class="btn-ghost"
-                            style="padding:6px 12px;font-size:0.78rem;
-                                   color:var(--red);">
-                      Delete
+                  <form method="POST" action="{{ url_for('dashboard.delete_prediction', prediction_id=pred.id) }}" onsubmit="return confirm('Delete this assessment record from your history?');" style="margin:0;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <button type="submit" class="btn-ghost" style="padding:6px 10px;font-size:0.78rem;color:var(--red);border-color:rgba(239,68,68,0.3);" title="Delete record">
+                      ✕
                     </button>
                   </form>
                 </div>
@@ -177,68 +170,46 @@
         </div>
 
         <!-- Pagination -->
-        {% if pagination.pages > 1 %}
-          <div style="display:flex;gap:8px;justify-content:center;
-                      flex-wrap:wrap;">
+        {% if pagination and pagination.pages > 1 %}
+          <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:20px;">
             {% if pagination.has_prev %}
-              <a href="{{ url_for('dashboard.history',
-                         page=pagination.prev_num,
-                         disease=disease_filter,
-                         risk=risk_filter) }}"
-                 class="btn-ghost">← Previous</a>
+              <a href="{{ url_for('dashboard.history', page=pagination.prev_num, disease=disease_filter, risk=risk_filter, q=search_q) }}" class="btn-ghost" style="padding:6px 12px;font-size:0.8rem;">
+                &larr; Previous
+              </a>
             {% endif %}
 
-            {% for p in range(1, pagination.pages + 1) %}
-              <a href="{{ url_for('dashboard.history',
-                         page=p,
-                         disease=disease_filter,
-                         risk=risk_filter) }}"
-                 class="btn-ghost {% if p == pagination.page %}active{% endif %}"
-                 style="{% if p == pagination.page %}
-                          background:var(--cyan);
-                          color:var(--bg-deep);
-                          border-color:var(--cyan);
-                        {% endif %}">
-                {{ p }}
-              </a>
-            {% endfor %}
+            <span style="font-size:0.82rem;color:var(--text-2);padding:0 8px;">
+              Page {{ pagination.page }} of {{ pagination.pages }}
+            </span>
 
             {% if pagination.has_next %}
-              <a href="{{ url_for('dashboard.history',
-                         page=pagination.next_num,
-                         disease=disease_filter,
-                         risk=risk_filter) }}"
-                 class="btn-ghost">Next →</a>
+              <a href="{{ url_for('dashboard.history', page=pagination.next_num, disease=disease_filter, risk=risk_filter, q=search_q) }}" class="btn-ghost" style="padding:6px 12px;font-size:0.8rem;">
+                Next &rarr;
+              </a>
             {% endif %}
           </div>
         {% endif %}
 
       {% else %}
-        <div class="empty-state"
-             style="text-align:center;padding:60px;
-                    color:var(--text-3);">
-          <div style="font-size:3rem;margin-bottom:16px;">📋</div>
-          <h3 style="color:var(--text-2);margin-bottom:8px;">
-            No predictions found
-          </h3>
-          <p>
-            {% if disease_filter or risk_filter %}
-              No records match your current filters.
-              <a href="{{ url_for('dashboard.history') }}">Clear filters</a>
+        <div class="result-panel" style="text-align:center;padding:50px 20px;color:var(--text-3);">
+          <div style="font-size:2.5rem;margin-bottom:12px;">📋</div>
+          <h3 style="color:var(--text-2);margin-bottom:6px;">No Screening Records Found</h3>
+          <p style="font-size:0.86rem;max-width:400px;margin:0 auto 18px;">
+            {% if search_q or disease_filter or risk_filter %}
+              No assessments match your filter criteria. Try resetting the filters.
             {% else %}
-              You haven't made any predictions yet.
+              You haven't run any disease prediction assessments yet.
             {% endif %}
           </p>
-          <a href="{{ url_for('prediction.predict_form',
-                              disease='diabetes') }}"
-             class="btn-primary"
-             style="margin-top:20px;display:inline-flex;">
-            Run First Prediction
+          <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}" class="btn-primary">
+            + Start Your First Prediction
           </a>
         </div>
       {% endif %}
 
     </div>
+
   </main>
+
 </div>
 {% endblock %}

@@ -388,15 +388,39 @@ def submit_prediction(disease: str):
         disease, input_values, config
     )
 
+    # ── Generate Educational Health Insights & Tasks ──────────
+    from utils.health_insights import generate_health_insights, get_personalized_tasks
+    from database.db import DailyHealthTask
+
+    insights = generate_health_insights(
+        disease_key  = disease,
+        result       = result.get('result', 'Negative'),
+        risk_level   = risk_level,
+        input_data   = input_values,
+        user_profile = current_user.profile
+    )
+
+    recommended_tasks = get_personalized_tasks(disease, risk_level)
+
+    # Ensure user has daily health tasks for today
+    try:
+        DailyHealthTask.generate_default_tasks_for_user(
+            current_user.id, disease_context=config['name']
+        )
+    except Exception as e:
+        logger.warning(f'Could not auto-generate tasks: {e}')
+
     # ── Render results ────────────────────────────────────────
     return render_template(
         'prediction/results.html',
-        prediction     = format_prediction_for_display(record),
-        disease_config = config,
-        disease_key    = disease,
-        risk_factors   = risk_factors,
-        precautions    = precautions,
-        page_title     = f'{config["name"]} — Result',
+        prediction        = format_prediction_for_display(record),
+        disease_config    = config,
+        disease_key       = disease,
+        risk_factors      = risk_factors,
+        precautions       = precautions,
+        insights          = insights,
+        recommended_tasks = recommended_tasks,
+        page_title        = f'{config["name"]} — Assessment Result',
     )
 
 # ============================================================

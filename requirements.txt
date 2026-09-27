@@ -47,5 +47,9 @@ click==8.1.7
 reportlab==4.2.2
 
 
+# ── PRODUCTION SERVER ─────────────────────────────────────────
+gunicorn==22.0.0
+
+
 # ── DEVELOPMENT ONLY ─────────────────────────────────────────
 flask-debugtoolbar==0.15.1

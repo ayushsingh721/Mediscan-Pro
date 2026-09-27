@@ -70,7 +70,7 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     WTF_CSRF_ENABLED        = False
     BCRYPT_LOG_ROUNDS       = 4
-    SESSION_TYPE            = 'null'
+    SESSION_TYPE            = 'filesystem'
 
 
 class ProductionConfig(BaseConfig):

@@ -1,21 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Healthcare Dashboard — MediScan Pro{% endblock %}
 {% block body_class %}page-app{% endblock %}
 
 {% block content %}
 <div class="app-layout">
 
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <span class="brand-icon small">&#11041;</span>
       <span class="brand-name">MediScan<em>Pro</em></span>
     </div>
     <nav class="sidebar-nav">
-      <a href="{{ url_for('dashboard.index') }}"
-         class="sidebar-item active">
-        <svg width="20" height="20" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
+      <a href="{{ url_for('dashboard.index') }}" class="sidebar-item active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7"/>
           <rect x="14" y="3" width="7" height="7"/>
           <rect x="14" y="14" width="7" height="7"/>
@@ -23,175 +22,353 @@
         </svg>
         Dashboard
       </a>
-      <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}"
-         class="sidebar-item">
-        <svg width="20" height="20" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
+      <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
         </svg>
         New Prediction
       </a>
-      <a href="{{ url_for('dashboard.history') }}"
-         class="sidebar-item">
-        <svg width="20" height="20" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12
-                   a2 2 0 002-2V8z"/>
+      <a href="{{ url_for('dashboard.history') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>
         </svg>
-        My Reports
+        Health Timeline
       </a>
-      <a href="{{ url_for('dashboard.profile') }}"
-         class="sidebar-item">
-        <svg width="20" height="20" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
+      <a href="{{ url_for('dashboard.profile') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
-        Profile
+        Health Profile
+      </a>
+      <a href="{{ url_for('datasets_explorer') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+        </svg>
+        Datasets & ML
       </a>
     </nav>
     <div class="sidebar-footer">
-      <div class="user-avatar-small">
-        {{ current_user.initials }}
-      </div>
+      <div class="user-avatar-small">{{ current_user.initials }}</div>
       <div class="user-info-small">
         <div class="user-name-small">{{ current_user.full_name }}</div>
         <div class="user-role">{{ current_user.role | title }}</div>
       </div>
-      <a href="{{ url_for('auth.logout') }}"
-         class="logout-btn" title="Logout">
-        <svg width="16" height="16" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4
-                   M16 17l5-5-5-5M21 12H9"/>
+      <a href="{{ url_for('auth.logout') }}" class="logout-btn" title="Logout">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
         </svg>
       </a>
     </div>
   </aside>
 
+  <!-- ── MAIN CONTENT ────────────────────────────────────── -->
   <main class="app-main">
 
     <div class="app-topbar">
-      <button class="sidebar-toggle" onclick="toggleSidebar()">
-        <svg width="22" height="22" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
+      <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="3" y1="6"  x2="21" y2="6"/>
           <line x1="3" y1="12" x2="21" y2="12"/>
           <line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
       </button>
-      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-title">Clinical Health Dashboard</div>
       <div class="topbar-actions">
+        <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}" class="btn-primary" style="padding: 6px 14px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+          + New Prediction
+        </a>
         <div class="topbar-avatar">{{ current_user.initials }}</div>
       </div>
     </div>
 
     <div class="dash-content">
 
+      <!-- WELCOME HERO BANNER -->
       <div class="dash-welcome">
         <div>
           <h2>
-            Good
-            {% if now is defined and now.hour < 12 %}morning
-            {% elif now is defined and now.hour < 18 %}afternoon
-            {% else %}evening
-            {% endif %}
+            Good <span id="greetingTimeOfDay">{% if now is defined and now.hour < 12 %}Morning{% elif now is defined and now.hour < 17 %}Afternoon{% else %}Evening{% endif %}</span>, {{ current_user.first_name }}
           </h2>
           <p>
             {% if days_since_last is not none %}
-              Your last check was
-              <strong>
-                {{ days_since_last }}
-                day{% if days_since_last != 1 %}s{% endif %} ago
-              </strong>.
-              Ready for a new assessment?
+              Your last clinical screening was <strong>{{ days_since_last }} day{% if days_since_last != 1 %}s{% endif %} ago</strong>.
+              Review your vitals or run a new risk assessment below.
             {% else %}
-              Welcome! Run your first disease prediction to get started.
+              Welcome to your digital health dashboard. Select a disease module below to run your first assessment.
             {% endif %}
           </p>
+
+          <!-- Quick Vitals Bar -->
+          <div style="display: flex; gap: 14px; margin-top: 14px; flex-wrap: wrap; align-items: center;">
+            <div style="background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; border: 1px solid var(--border); display: flex; align-items: center; gap: 6px;">
+              <span style="color: var(--text-3);">BMI:</span>
+              <strong style="color: var(--cyan);">
+                {{ user.current_bmi if user.current_bmi else '—' }}
+              </strong>
+              <span class="risk-badge risk-{{ bmi_category['badge'] }}" style="padding: 1px 7px; font-size: 0.7rem;">
+                {{ bmi_category['label'] }}
+              </span>
+            </div>
+
+            {% if profile and profile.blood_group %}
+            <div style="background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; border: 1px solid var(--border);">
+              <span style="color: var(--text-3);">Blood Group:</span>
+              <strong>{{ profile.blood_group }}</strong>
+            </div>
+            {% endif %}
+
+            {% if profile and profile.activity_level %}
+            <div style="background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; border: 1px solid var(--border);">
+              <span style="color: var(--text-3);">Activity:</span>
+              <strong>{{ profile.activity_level }}</strong>
+            </div>
+            {% endif %}
+
+            <a href="{{ url_for('dashboard.profile') }}" style="font-size: 0.8rem; color: var(--cyan); text-decoration: none;">
+              Edit Vitals &rarr;
+            </a>
+          </div>
         </div>
-        <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}"
-           class="btn-primary">
-          + New Prediction
-        </a>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-self: flex-start;">
+          <a href="{{ url_for('prediction.predict_form', disease='diabetes') }}" class="btn-primary">
+            + Start Prediction
+          </a>
+          <a href="{{ url_for('dashboard.history') }}" class="btn-ghost">
+            View History
+          </a>
+        </div>
       </div>
 
+      <!-- 4 SUMMARY CARDS -->
       <div class="summary-cards">
 
+        <!-- Card 1: Total Predictions -->
         <div class="summary-card">
-          <div class="sum-icon"
-               style="background:rgba(34,211,238,0.15);color:#22d3ee">
-            <svg width="22" height="22" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2">
+          <div class="sum-icon" style="background:rgba(34,211,238,0.15);color:#22d3ee">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
             </svg>
           </div>
           <div class="sum-info">
             <div class="sum-num">{{ total_predictions }}</div>
-            <div class="sum-label">Total Predictions</div>
+            <div class="sum-label">Assessments Made</div>
           </div>
         </div>
 
+        <!-- Card 2: Overall Risk -->
         <div class="summary-card">
           <div class="sum-icon"
-               style="background:rgba(52,211,153,0.15);color:#34d399">
-            <svg width="22" height="22" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0
-                       11-18 0 9 9 0 0118 0z"/>
+               style="background:{% if overall_risk == 'High' %}rgba(239,68,68,0.15){% elif overall_risk == 'Moderate' %}rgba(245,158,11,0.15){% else %}rgba(52,211,153,0.15){% endif %};
+                      color:{% if overall_risk == 'High' %}#ef4444{% elif overall_risk == 'Moderate' %}#f59e0b{% else %}#34d399{% endif %};">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
           <div class="sum-info">
             <div class="sum-num">{{ overall_risk }}</div>
-            <div class="sum-label">Overall Risk Level</div>
+            <div class="sum-label">Latest Risk Status</div>
           </div>
         </div>
 
+        <!-- Card 3: Today's Tasks Completed -->
         <div class="summary-card">
-          <div class="sum-icon"
-               style="background:rgba(251,191,36,0.15);color:#fbbf24">
-            <svg width="22" height="22" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12
-                       a2 2 0 002-2V8z"/>
+          <div class="sum-icon" style="background:rgba(52,211,153,0.15);color:#34d399">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 11 12 14 22 4"/>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
             </svg>
           </div>
-          <div class="sum-info">
-            <div class="sum-num">{{ reports_downloaded }}</div>
-            <div class="sum-label">Reports Downloaded</div>
-          </div>
-        </div>
-
-        <div class="summary-card">
-          <div class="sum-icon"
-               style="background:rgba(167,139,250,0.15);color:#a78bfa">
-            <svg width="22" height="22" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-          </div>
-          <div class="sum-info">
-            <div class="sum-num">
-              {% if days_since_last is not none %}
-                {{ days_since_last }}d
-              {% else %}
-                —
-              {% endif %}
+          <div class="sum-info" style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <div class="sum-num" id="tasksCompletedCount">{{ task_stats.completed }}/{{ task_stats.total }}</div>
+              <span style="font-size: 0.8rem; color: var(--green); font-weight: 600;" id="tasksPctText">{{ task_stats.pct }}%</span>
             </div>
-            <div class="sum-label">Since Last Check</div>
+            <div class="sum-label">Today's Habits Completed</div>
+            <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 6px; overflow: hidden;">
+              <div id="tasksProgressBar" style="width: {{ task_stats.pct }}%; height: 100%; background: var(--green); transition: width 0.4s ease;"></div>
+            </div>
           </div>
-          {% if days_since_last and days_since_last > 7 %}
-            <div class="sum-trend warn">Check Due</div>
-          {% endif %}
+        </div>
+
+        <!-- Card 4: Health Streak -->
+        <div class="summary-card">
+          <div class="sum-icon" style="background:rgba(251,191,36,0.15);color:#fbbf24">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2c1.5 3 4 5 4 9a6 6 0 01-12 0c0-4 2.5-6 4-9 1 2 2.5 3 4 3s2.5-1 4-3z"/>
+            </svg>
+          </div>
+          <div class="sum-info">
+            <div class="sum-num" id="healthStreakCount">{{ health_streak }} <small style="font-size: 0.85rem; font-weight: normal; color: var(--text-2);">days</small></div>
+            <div class="sum-label">Health Habit Streak</div>
+          </div>
         </div>
 
       </div>
 
-      <div class="section-header">
-        <h3>Prediction Modules</h3>
-        <span>Select a disease to begin assessment</span>
+      <!-- MAIN DASHBOARD CONTENT: 2 COLUMNS (TASKS + RECENT PREDICTIONS) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px;">
+
+        <!-- LEFT: TODAY'S HEALTH TASKS INTERACTIVE CHECKLIST -->
+        <div class="result-panel" style="display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.2rem;">🎯</span>
+              <h3 style="margin: 0;">Today's Health Tasks</h3>
+            </div>
+            <form method="POST" action="{{ url_for('dashboard.reset_daily_tasks') }}" style="margin: 0;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit" class="btn-ghost" style="padding: 4px 10px; font-size: 0.75rem;" title="Refresh today's task checklist">
+                ⟳ Refresh
+              </button>
+            </form>
+          </div>
+
+          <p style="font-size: 0.82rem; color: var(--text-3); margin-bottom: 14px;">
+            Daily wellness routines tailored to your profile and assessment history. Click to mark complete.
+          </p>
+
+          <div id="tasksListContainer" style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+            {% for task in task_stats.tasks %}
+              <div class="task-row {% if task.is_completed %}task-done{% endif %}"
+                   id="task-row-{{ task.id }}"
+                   onclick="toggleTask({{ task.id }})"
+                   style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;">
+                <input type="checkbox"
+                       class="task-check"
+                       id="check-{{ task.id }}"
+                       {% if task.is_completed %}checked{% endif %}
+                       onclick="event.stopPropagation(); toggleTask({{ task.id }});"
+                       style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--green);" />
+                <div style="flex: 1;">
+                  <div class="task-text" style="font-size: 0.88rem; color: {% if task.is_completed %}var(--text-3){% else %}var(--text-1){% endif %}; text-decoration: {% if task.is_completed %}line-through{% else %}none{% endif %}; font-weight: 500;">
+                    {{ task.task_text }}
+                  </div>
+                  <span style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-3); letter-spacing: 0.04em;">
+                    {{ task.category }}
+                  </span>
+                </div>
+                <span class="task-status-badge" style="font-size: 0.75rem; color: {% if task.is_completed %}var(--green){% else %}var(--text-3){% endif %};">
+                  {% if task.is_completed %}Completed ✓{% else %}Pending{% endif %}
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Add Custom Task Input -->
+          <form method="POST" action="{{ url_for('dashboard.add_custom_task') }}" style="display: flex; gap: 8px; margin-top: 14px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="text" name="task_text" placeholder="+ Add a personalized wellness task..." required
+                   style="flex: 1; padding: 8px 12px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-1); font-size: 0.82rem;" />
+            <button type="submit" class="btn-ghost" style="padding: 8px 14px; font-size: 0.82rem;">Add</button>
+          </form>
+        </div>
+
+        <!-- RIGHT: RECENT PREDICTIONS & QUICK REPORT DOWNLOAD -->
+        <div class="result-panel" style="display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.2rem;">⏱️</span>
+              <h3 style="margin: 0;">Recent Clinical Screenings</h3>
+            </div>
+            <a href="{{ url_for('dashboard.history') }}" style="font-size: 0.82rem; color: var(--cyan); text-decoration: none;">
+              View All History &rarr;
+            </a>
+          </div>
+
+          <div class="history-list" style="flex: 1;">
+            {% if recent_predictions %}
+              {% for pred in recent_predictions %}
+                <div class="history-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; margin-bottom: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="hist-icon {{ pred.risk_css }}" style="font-size: 1.1rem;">
+                      {{ pred.risk_emoji }}
+                    </div>
+                    <div>
+                      <a href="{{ pred.detail_url }}" style="text-decoration: none; color: var(--text-1); font-weight: 600; font-size: 0.9rem;">
+                        {{ pred.disease_name }}
+                      </a>
+                      <div style="font-size: 0.75rem; color: var(--text-3); margin-top: 2px;">
+                        {{ pred.date_short }} &middot; Risk: {{ pred.confidence_pct }}%
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="risk-badge risk-{{ pred.risk_css.lower() }}" style="font-size: 0.75rem;">
+                      {{ pred.risk_level }}
+                    </span>
+                    <a href="{{ pred.download_url }}" class="btn-ghost" style="padding: 4px 8px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;" title="Download PDF Report">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                      </svg>
+                      PDF
+                    </a>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state" style="padding: 30px; text-align: center; color: var(--text-3);">
+                <p>No screening records yet. Choose a disease module below to start.</p>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- MediScan AI Daily Health Advisor Card -->
+          <div class="ai-health-tip-card" id="aiHealthTipCard" style="margin-top: 18px; padding: 18px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(99, 102, 241, 0.08)); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 16px; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="badge-pulse" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 10px #38bdf8;"></span>
+                <span style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #38bdf8;">MediScan AI Health Advisor</span>
+                <span id="aiTipCategoryBadge" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3);">
+                  {{ ai_tip.category if ai_tip else 'Cardiometabolic' }}
+                </span>
+              </div>
+              <button id="refreshAiTipBtn" class="btn-ghost" style="padding: 4px 10px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(15, 23, 42, 0.5); cursor: pointer;" title="Generate new personalized AI tip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="refreshAiTipIcon">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2"/>
+                </svg>
+                <span>⚡ New AI Tip</span>
+              </button>
+            </div>
+
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <div id="aiTipIcon" style="font-size: 1.8rem; line-height: 1; padding: 6px; background: rgba(15, 23, 42, 0.4); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
+                {{ ai_tip.icon if ai_tip else '🧬' }}
+              </div>
+              <div style="flex: 1;">
+                <h4 id="aiTipTitle" style="font-size: 0.95rem; font-weight: 600; color: #f8fafc; margin: 0 0 4px 0;">
+                  {{ ai_tip.title if ai_tip else 'Post-Meal Ambulatory Glucose Clearance' }}
+                </h4>
+                <p id="aiTipRationale" style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 10px 0; line-height: 1.45;">
+                  {{ ai_tip.rationale if ai_tip else 'Post-prandial muscle contractions activate non-insulin dependent GLUT-4 translocation.' }}
+                </p>
+                <div style="padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border-left: 3px solid #38bdf8; margin-bottom: 8px;">
+                  <span style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; color: #38bdf8; display: block; margin-bottom: 2px;">Action for Today:</span>
+                  <span id="aiTipAction" style="font-size: 0.82rem; color: #e2e8f0;">
+                    {{ ai_tip.action_step if ai_tip else 'Take a brisk 10 to 15-minute walk within 30 minutes following your carbohydrate-rich meal today.' }}
+                  </span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: #64748b; flex-wrap: wrap; gap: 6px;">
+                  <span>Biomarker: <strong id="aiTipBiomarker" style="color: #cbd5e1;">{{ ai_tip.target_biomarker if ai_tip else 'Insulin Sensitivity' }}</strong></span>
+                  <span id="aiTipImpact" style="color: #34d399; font-weight: 600;">{{ ai_tip.impact if ai_tip else 'High Clinical Impact' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- DISEASE MODULES SELECTION -->
+      <div class="section-header" style="margin-bottom: 16px;">
+        <h3>AI Disease Prediction Modules</h3>
+        <span>Select an organ system or chronic condition for machine learning risk assessment</span>
       </div>
 
       <div class="modules-grid">
@@ -199,63 +376,15 @@
           <a href="{{ module.url }}" class="module-card">
             <div class="module-icon">{{ module.icon }}</div>
             <div class="module-name">{{ module.name }}</div>
-            <div class="module-acc">{{ module.accuracy }} accuracy</div>
-            <div class="module-arrow">&#8594;</div>
+            <div style="font-size: 0.78rem; color: var(--text-2); margin: 6px 0 10px; line-height: 1.4;">
+              {{ module.description }}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="module-acc">{{ module.accuracy }} accuracy</span>
+              <span class="module-arrow">&#8594;</span>
+            </div>
           </a>
         {% endfor %}
-      </div>
-
-      <div class="dash-bottom">
-
-        <div class="history-panel">
-          <div class="panel-header">
-            <h3>Recent Predictions</h3>
-            <a href="{{ url_for('dashboard.history') }}">View All</a>
-          </div>
-          <div class="history-list">
-            {% if recent_predictions %}
-              {% for pred in recent_predictions %}
-                <a href="{{ pred.detail_url }}"
-                   class="history-item"
-                   style="text-decoration:none;">
-                  <div class="hist-icon {{ pred.risk_css }}">
-                    {{ pred.risk_emoji }}
-                  </div>
-                  <div class="hist-info">
-                    <div class="hist-name">{{ pred.disease_name }}</div>
-                    <div class="hist-date">{{ pred.date_full }}</div>
-                  </div>
-                  <div class="hist-result {{ pred.risk_css }}">
-                    {{ pred.risk_level }} &middot; {{ pred.confidence_pct }}%
-                  </div>
-                </a>
-              {% endfor %}
-            {% else %}
-              <div class="empty-state">
-                <p>No predictions yet. Run your first assessment above.</p>
-              </div>
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="tips-panel">
-          <div class="panel-header">
-            <h3>Health Tips</h3>
-            <span class="tips-badge">Daily</span>
-          </div>
-          <div class="tips-list">
-            {% for tip in health_tips %}
-              <div class="tip-card">
-                <div class="tip-emoji">{{ tip.emoji }}</div>
-                <div>
-                  <div class="tip-title">{{ tip.title }}</div>
-                  <p>{{ tip.body }}</p>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-
       </div>
 
     </div>
@@ -263,4 +392,56 @@
   </main>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function toggleTask(taskId) {
+    const csrfEl = document.getElementById('csrf-token');
+    const csrfToken = csrfEl ? csrfEl.getAttribute('data-token') : '';
+
+    fetch(`/dashboard/tasks/${taskId}/toggle`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        const row = document.getElementById(`task-row-${taskId}`);
+        const chk = document.getElementById(`check-${taskId}`);
+        const text = row.querySelector('.task-text');
+        const badge = row.querySelector('.task-status-badge');
+
+        if (data.is_completed) {
+          row.classList.add('task-done');
+          chk.checked = true;
+          text.style.textDecoration = 'line-through';
+          text.style.color = 'var(--text-3)';
+          badge.textContent = 'Completed ✓';
+          badge.style.color = 'var(--green)';
+        } else {
+          row.classList.remove('task-done');
+          chk.checked = false;
+          text.style.textDecoration = 'none';
+          text.style.color = 'var(--text-1)';
+          badge.textContent = 'Pending';
+          badge.style.color = 'var(--text-3)';
+        }
+
+        // Update progress bar and counter
+        document.getElementById('tasksCompletedCount').textContent = `${data.completed}/${data.total}`;
+        document.getElementById('tasksPctText').textContent = `${data.pct}%`;
+        document.getElementById('tasksProgressBar').style.width = `${data.pct}%`;
+
+        if (document.getElementById('healthStreakCount')) {
+          document.getElementById('healthStreakCount').innerHTML = `${data.streak} <small style="font-size: 0.85rem; font-weight: normal; color: var(--text-2);">days</small>`;
+        }
+      }
+    })
+    .catch(err => console.error('Error toggling task:', err));
+  }
+</script>
 {% endblock %}

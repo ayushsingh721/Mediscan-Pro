@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ disease_config.name }} — Result{% endblock %}
+{% block title %}{{ disease_config.name }} — Clinical Assessment Result{% endblock %}
 {% block body_class %}page-app{% endblock %}
 
 {% block content %}
 <div class="app-layout">
 
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <span class="brand-icon small">&#11041;</span>
@@ -13,8 +14,7 @@
     </div>
     <nav class="sidebar-nav">
       <a href="{{ url_for('dashboard.index') }}" class="sidebar-item">
-        <svg width="20" height="20" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7"/>
           <rect x="14" y="3" width="7" height="7"/>
           <rect x="14" y="14" width="7" height="7"/>
@@ -22,31 +22,25 @@
         </svg>
         Dashboard
       </a>
-      <a href="{{ url_for('prediction.predict_form', disease=disease_key) }}"
-         class="sidebar-item">
-        <svg width="20" height="20" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
+      <a href="{{ url_for('prediction.predict_form', disease=disease_key) }}" class="sidebar-item active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
         </svg>
         New Prediction
       </a>
-      <a href="{{ url_for('dashboard.history') }}"
-         class="sidebar-item active">
-        <svg width="20" height="20" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12
-                   a2 2 0 002-2V8z"/>
+      <a href="{{ url_for('dashboard.history') }}" class="sidebar-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>
         </svg>
-        My Reports
+        Health Timeline
       </a>
       <a href="{{ url_for('dashboard.profile') }}" class="sidebar-item">
-        <svg width="20" height="20" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
-        Profile
+        Health Profile
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -55,82 +49,92 @@
         <div class="user-name-small">{{ current_user.full_name }}</div>
         <div class="user-role">{{ current_user.role | title }}</div>
       </div>
-      <a href="{{ url_for('auth.logout') }}" class="logout-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4
-                   M16 17l5-5-5-5M21 12H9"/>
+      <a href="{{ url_for('auth.logout') }}" class="logout-btn" title="Logout">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
         </svg>
       </a>
     </div>
   </aside>
 
+  <!-- ── MAIN CONTENT ────────────────────────────────────── -->
   <main class="app-main">
 
     <div class="app-topbar">
-      <button class="sidebar-toggle" onclick="toggleSidebar()">
-        <svg width="22" height="22" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
+      <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="3" y1="6"  x2="21" y2="6"/>
           <line x1="3" y1="12" x2="21" y2="12"/>
           <line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
       </button>
-      <div class="topbar-title">Prediction Results</div>
+      <div class="topbar-title">Clinical Screening Results</div>
       <div class="topbar-actions">
+        <a href="{{ url_for('dashboard.download_report', prediction_id=prediction.id) }}" class="btn-primary" style="padding: 6px 14px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Download PDF Report
+        </a>
         <div class="topbar-avatar">{{ current_user.initials }}</div>
       </div>
     </div>
 
     <div class="results-content">
 
+      <!-- Breadcrumbs and meta -->
       <div class="results-header">
-        <a href="{{ url_for('prediction.predict_form', disease=disease_key) }}"
-           class="back-link">
-          &larr; New Assessment
+        <a href="{{ url_for('prediction.predict_form', disease=disease_key) }}" class="back-link">
+          &larr; Re-evaluate Parameters
         </a>
         <div class="results-meta">
           <span>{{ prediction.disease_name }}</span>
           <span class="dot">&middot;</span>
           <span>{{ prediction.date_full }}</span>
+          <span class="dot">&middot;</span>
+          <span style="color: var(--cyan); font-weight: 500;">RPT-{{ '%05d' | format(prediction.id) }}</span>
         </div>
       </div>
 
+      <!-- HERO RESULT CARD -->
       <div class="result-hero-card">
-
         <div class="result-verdict-section">
           <div class="verdict-icon
             {% if prediction.risk_level == 'High' %}danger
             {% elif prediction.risk_level == 'Moderate' %}warn
-            {% endif %}">
+            {% else %}normal{% endif %}">
             {{ prediction.risk_icon }}
           </div>
           <div class="verdict-text">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+              <span class="risk-badge risk-{{ prediction.risk_css.lower() }}" style="font-size: 0.85rem; padding: 4px 12px;">
+                {{ prediction.risk_level }} Risk
+              </span>
+              <span style="font-size: 0.85rem; color: var(--text-2);">
+                Result: <strong>{{ prediction.result }}</strong>
+              </span>
+            </div>
             <div class="verdict-title">
               {{ prediction.risk_level }} Risk Detected
             </div>
             <div class="verdict-sub">
               {% if prediction.risk_level == 'Low' %}
-                No significant indicators for
-                {{ prediction.disease_name }} found.
+                Your recorded parameters are within typical low-risk screening ranges for {{ prediction.disease_name }}. Maintain ongoing wellness habits.
               {% elif prediction.risk_level == 'Moderate' %}
-                Some elevated risk markers found.
-                Lifestyle changes recommended.
+                Borderline or elevated markers detected for {{ prediction.disease_name }}. Proactive dietary, activity, and clinical reviews recommended.
               {% else %}
-                Multiple risk indicators detected.
-                Please consult a physician promptly.
+                Multiple elevated risk indicators observed for {{ prediction.disease_name }}. We strongly recommend scheduling a clinical consultation with a healthcare provider.
               {% endif %}
             </div>
           </div>
         </div>
 
         <div class="result-confidence">
-          <div class="confidence-label">Risk Probability</div>
+          <div class="confidence-label">Risk Probability Score</div>
           <div class="confidence-meter">
             <svg viewBox="0 0 200 110" class="gauge-svg">
               <defs>
-                <linearGradient id="gaugeGrad" x1="0" y1="0"
-                                x2="1" y2="0">
+                <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0%"   stop-color="#22d3ee"/>
                   <stop offset="50%"  stop-color="#f59e0b"/>
                   <stop offset="100%" stop-color="#ef4444"/>
@@ -147,106 +151,185 @@
                     stroke-dasharray="251"
                     stroke-dashoffset="200"
                     id="gaugeFill"/>
-              <text x="100" y="90"
-                    text-anchor="middle"
-                    class="gauge-pct">
+              <text x="100" y="90" text-anchor="middle" class="gauge-pct">
                 {{ prediction.confidence_pct }}%
               </text>
-              <text x="100" y="105"
-                    text-anchor="middle"
-                    class="gauge-sub-text">
-                Risk Score
+              <text x="100" y="105" text-anchor="middle" class="gauge-sub-text">
+                Risk Probability
               </text>
             </svg>
           </div>
           <div class="confidence-scale">
-            <span style="color:#22d3ee">Low</span>
-            <span style="color:#f59e0b">Moderate</span>
-            <span style="color:#ef4444">High</span>
+            <span style="color:#22d3ee">Low (&lt;30%)</span>
+            <span style="color:#f59e0b">Moderate (30-60%)</span>
+            <span style="color:#ef4444">High (&gt;60%)</span>
           </div>
         </div>
-
       </div>
 
+      <!-- ACTION BUTTONS BAR -->
+      <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+        <a href="{{ url_for('dashboard.download_report', prediction_id=prediction.id) }}" class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Download PDF Clinical Report
+        </a>
+        <a href="{{ url_for('dashboard.view_report', prediction_id=prediction.id) }}" target="_blank" class="btn-ghost" style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          View PDF Online
+        </a>
+        <a href="{{ url_for('prediction.predict_form', disease=disease_key) }}" class="btn-ghost">
+          New Assessment
+        </a>
+        <a href="{{ url_for('dashboard.history') }}" class="btn-ghost">
+          View All History
+        </a>
+      </div>
+
+      <!-- MAIN RESULTS GRID -->
       <div class="results-grid">
 
-        <div class="result-panel">
-          <h3>Risk Factor Analysis</h3>
-          <div class="risk-factors">
-            {% for factor in risk_factors %}
-              <div class="risk-factor-item">
-                <div class="rf-label">
-                  {{ factor.label | truncate(22, True, '...') }}
-                </div>
-                <div class="rf-bar-wrap">
-                  <div class="rf-bar"
-                       style="width:{{ factor.pct }}%;
-                              background:
-                              {% if factor.status == 'elevated' %}#ef4444
-                              {% elif factor.status == 'borderline' %}#f59e0b
-                              {% else %}#22d3ee{% endif %}">
+        <!-- COLUMN 1: INPUT SUMMARY & RISK FACTORS -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+
+          <!-- Parameters Breakdown -->
+          <div class="result-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <h3>Input Clinical Parameters</h3>
+              <span style="font-size: 0.75rem; color: var(--text-3);">{{ risk_factors | length }} Features Evaluated</span>
+            </div>
+            <div class="risk-factors">
+              {% for factor in risk_factors %}
+                <div class="risk-factor-item">
+                  <div class="rf-label" title="{{ factor.label }}">
+                    {{ factor.label | truncate(22, True, '...') }}
+                  </div>
+                  <div class="rf-bar-wrap">
+                    <div class="rf-bar"
+                         style="width:{{ factor.pct }}%;
+                                background:
+                                {% if factor.status == 'elevated' %}#ef4444
+                                {% elif factor.status == 'borderline' %}#f59e0b
+                                {% else %}#22d3ee{% endif %}">
+                    </div>
+                  </div>
+                  <div class="rf-value {{ factor.status }}">
+                    {{ factor.value }}{% if factor.unit %} <small style="font-size: 0.7rem; color: var(--text-3);">{{ factor.unit }}</small>{% endif %}
+                    <span style="font-size: 0.68rem; margin-left: 4px; opacity: 0.85;">
+                      ({{ factor.status | title }})
+                    </span>
                   </div>
                 </div>
-                <div class="rf-value {{ factor.status }}">
-                  {% if factor.status == 'elevated' %}High
-                  {% elif factor.status == 'borderline' %}Borderline
-                  {% else %}Normal{% endif %}
-                </div>
-              </div>
-            {% endfor %}
+              {% endfor %}
+            </div>
           </div>
+
+          <!-- Suggested Precautions -->
+          <div class="result-panel">
+            <h3>Clinical Precautions &amp; Protocol</h3>
+            <div class="precautions-list">
+              {% set prec_list = precautions.split('. ') %}
+              {% for prec in prec_list if prec %}
+                <div class="precaution-item">
+                  <div class="prec-num">{{ '%02d' | format(loop.index) }}</div>
+                  <div>
+                    <p style="margin: 0; font-size: 0.88rem; line-height: 1.45;">
+                      {{ prec }}{% if not prec.endswith('.') %}.{% endif %}
+                    </p>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
         </div>
 
-        <div class="result-panel">
-          <h3>Suggested Precautions</h3>
-          <div class="precautions-list">
-            {% set prec_list = precautions.split('. ') %}
-            {% for prec in prec_list if prec %}
-              <div class="precaution-item">
-                <div class="prec-num">
-                  {{ '%02d' | format(loop.index) }}
-                </div>
-                <div>
-                  <p>
-                    {{ prec }}{% if not prec.endswith('.') %}.{% endif %}
-                  </p>
-                </div>
-              </div>
-            {% endfor %}
+        <!-- COLUMN 2: HEALTH INSIGHTS & DAILY TASKS -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+
+          <!-- Educational Health Insights -->
+          {% if insights %}
+          <div class="result-panel" style="border-left: 3px solid var(--cyan);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+              <span style="font-size: 1.2rem;">💡</span>
+              <h3 style="margin: 0;">Personalized Health Insights</h3>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-2); line-height: 1.5; margin-bottom: 14px;">
+              {{ insights.summary }}
+            </p>
+
+            <h4 style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 8px;">
+              Recommended Lifestyle Interventions:
+            </h4>
+            <ul style="padding-left: 18px; margin-bottom: 16px; font-size: 0.86rem; color: var(--text-1); line-height: 1.6;">
+              {% for rec in insights.recommendations[:4] %}
+                <li style="margin-bottom: 6px;">{{ rec }}</li>
+              {% endfor %}
+            </ul>
+
+            {% if insights.questions_for_doctor %}
+            <h4 style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--cyan); margin-bottom: 8px;">
+              Questions for Your Next Physician Consultation:
+            </h4>
+            <ul style="padding-left: 18px; margin: 0; font-size: 0.84rem; color: var(--text-2); line-height: 1.55;">
+              {% for q in insights.questions_for_doctor[:3] %}
+                <li style="margin-bottom: 4px;">{{ q }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
           </div>
+          {% endif %}
+
+          <!-- Recommended Daily Wellness Tasks -->
+          <div class="result-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.2rem;">🎯</span>
+                <h3 style="margin: 0;">Today's Health Tasks</h3>
+              </div>
+              <a href="{{ url_for('dashboard.index') }}" style="font-size: 0.78rem; color: var(--cyan); text-decoration: none;">
+                Open Dashboard &rarr;
+              </a>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-3); margin-bottom: 14px;">
+              These wellness tasks have been added to your daily dashboard checklist:
+            </p>
+            <div class="tasks-preview-list" style="display: flex; flex-direction: column; gap: 8px;">
+              {% for t in recommended_tasks %}
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                  <span style="color: var(--green); font-size: 1rem;">✓</span>
+                  <div style="flex: 1;">
+                    <div style="font-size: 0.86rem; color: var(--text-1); font-weight: 500;">
+                      {{ t.text }}
+                    </div>
+                    <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-3); letter-spacing: 0.04em;">
+                      {{ t.category }}
+                    </span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
         </div>
 
       </div>
 
-      <div class="results-footer">
+      <!-- OFFICIAL DISCLAIMER FOOTER -->
+      <div class="results-footer" style="margin-top: 28px;">
         <div class="disclaimer">
-          <svg width="18" height="18" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8"  x2="12" y2="12"/>
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
           <p>
-            Screening tool only. Not a medical diagnosis.
-            Consult a qualified healthcare professional.
+            <strong>CLINICAL SCREENING DISCLAIMER:</strong> This prediction is generated by machine learning models for informational and academic educational purposes only. It does not replace a clinical examination, diagnosis, or treatment plan provided by a certified medical doctor.
           </p>
-        </div>
-        <div class="result-actions">
-          <a href="{{ url_for('prediction.predict_form',
-                              disease=disease_key) }}"
-             class="btn-ghost">New Assessment</a>
-          <a href="{{ url_for('dashboard.index') }}"
-             class="btn-ghost">Dashboard</a>
-          <a href="{{ url_for('dashboard.download_report',
-                              prediction_id=prediction.id) }}"
-             class="btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0
-                       01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-            </svg>
-            Download Report
-          </a>
         </div>
       </div>
 
@@ -260,14 +343,14 @@
 {% block extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var fill       = document.getElementById('gaugeFill');
+    var fill = document.getElementById('gaugeFill');
     var confidence = {{ prediction.confidence_pct }};
     if (fill) {
       var offset = 251 - (251 * confidence / 100);
       setTimeout(function () {
-        fill.style.transition       = 'stroke-dashoffset 1.5s ease';
+        fill.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(0.4, 0, 0.2, 1)';
         fill.style.strokeDashoffset = offset;
-      }, 300);
+      }, 250);
     }
   });
 </script>

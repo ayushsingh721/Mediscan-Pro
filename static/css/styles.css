@@ -124,6 +124,16 @@ em { font-style: italic; color: var(--cyan); }
   transition: color 0.2s;
 }
 .nav-links a:hover { color: var(--text-1); }
+.nav-signin-link {
+  color: var(--primary-light, #818cf8) !important;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: color 0.2s, opacity 0.2s;
+}
+.nav-signin-link:hover {
+  color: #fff !important;
+  opacity: 0.9;
+}
 
 .nav-hamburger {
   display: none; flex-direction: column; gap: 5px;
@@ -1172,3 +1182,69 @@ em { font-style: italic; color: var(--cyan); }
     box-shadow: 4px 0 32px rgba(0,0,0,0.5);
   }
 }
+
+/* ── Risk Badges ─────────────────────────────────────────── */
+.risk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.risk-badge.risk-low,
+.risk-badge.risk-success {
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #34d399;
+}
+.risk-badge.risk-moderate,
+.risk-badge.risk-warning {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+.risk-badge.risk-high,
+.risk-badge.risk-danger {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+.risk-badge.risk-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-2);
+}
+
+/* ── Interactive Health Tasks ────────────────────────────── */
+.task-row {
+  transition: all 0.2s ease;
+}
+.task-row:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(34, 211, 238, 0.3) !important;
+  transform: translateX(2px);
+}
+.task-row.task-done {
+  background: rgba(52, 211, 153, 0.04) !important;
+  border-color: rgba(52, 211, 153, 0.2) !important;
+}
+.task-row.task-done:hover {
+  background: rgba(52, 211, 153, 0.08) !important;
+}
+
+/* ── Responsive Dashboard Grids ──────────────────────────── */
+@media (max-width: 960px) {
+  .results-grid {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="grid-template-columns:1.6fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
